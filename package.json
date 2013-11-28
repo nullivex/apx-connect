@@ -1,0 +1,38 @@
+{
+  "name": "apex-connect",
+  "description": "Apex authentication library",
+  "version": "0.0.0",
+  "authors": [
+    {
+      "name": "Bryan Tong",
+      "email": "contact@nullivex.com",
+      "homepage": "http://bryantong.com"
+    },
+    {
+      "name": "Tony Butler",
+      "email": "spudz76@gmail.com",
+      "homepage": "http://github.com/spudz76"
+    },
+    {
+      "name": "Jorge Martinez",
+      "email": "george@esited.com",
+      "homepage": "http://github.com/georgemtz"
+    }
+  ],
+  "keywords": [
+    "snail",
+    "apex",
+    "auth"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "0.4.x",
+    "grunt-mocha-test": "0.7.x",
+    "mocha": "1.13.x",
+    "should": "2.0.x",
+    "grunt-contrib-watch": "~0.5.3"
+  },
+  "scripts": {
+    "test": "grunt test"
+  }
+}
