@@ -11,41 +11,27 @@ module.exports = function(grunt) {
         files: ["*.js"],
         tasks: ["test"]
       }
+    },
+    projectUpdate: {
+      projectUpdate: {
+        options: {
+          commands: [
+            {cmd: "npm", args: ["install"]},
+            {cmd: "npm", args: ["update"]},
+            {cmd: "npm", args: ["prune"]}
+          ]
+        }
+      }
     }
   })
   //load modules
   grunt.loadNpmTasks("grunt-mocha-test")
   grunt.loadNpmTasks("grunt-contrib-watch")
+  grunt.loadNpmTasks("grunt-project-update")
 
   //server tasks
   grunt.registerTask("test",["mochaTest"])
+  grunt.registerTask("update",["projectUpdate"])
   grunt.registerTask("default",["watch"])
 
-  //shortcut task to update everything
-  grunt.registerTask("update","Update/prune npm",function(){
-    var dir_root = __dirname
-      , done = this.async()
-    require("async").eachSeries(
-      [
-        {cmd: "npm", args: ["install"], opts:{cwd:dir_root}},
-        {cmd: "npm", args: ["update"], opts:{cwd:dir_root}},
-        {cmd: "npm", args: ["prune"], opts:{cwd:dir_root}}
-      ],
-      function(opts,fn){
-        grunt.log.writeln("Executing " + opts.cmd + " " + opts.args.join(" "))
-        grunt.util.spawn(opts,function(err,res){
-          if(err) fn(err)
-          else {
-            if(res.stderr) grunt.log.ok(res.stderr)
-            if(res.stdout) grunt.log.ok(res.stdout)
-            fn()
-          }
-        })
-      },
-      function(err){
-        if(err) throw err
-        done()
-      }
-    )
-  })
 }

@@ -31,7 +31,8 @@
     "grunt-mocha-test": "~0.7.0",
     "mocha": "~1.13.0",
     "should": "~2.0.0",
-    "grunt-contrib-watch": "~0.5.3"
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-project-update": "~0.1.0"
   },
   "scripts": {
     "test": "grunt test"
