@@ -19,6 +19,7 @@ module.exports = function(grunt) {
 
   //server tasks
   grunt.registerTask("test",["mochaTest"])
+  grunt.registerTask("default",["watch"])
 
   //shortcut task to update everything
   grunt.registerTask("update","Update/prune npm",function(){

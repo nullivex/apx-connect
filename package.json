@@ -26,10 +26,11 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "grunt": "0.4.x",
-    "grunt-mocha-test": "0.7.x",
-    "mocha": "1.13.x",
-    "should": "2.0.x",
+    "async": "~0.2.0",
+    "grunt": "~0.4.0",
+    "grunt-mocha-test": "~0.7.0",
+    "mocha": "~1.13.0",
+    "should": "~2.0.0",
     "grunt-contrib-watch": "~0.5.3"
   },
   "scripts": {
