@@ -56,6 +56,15 @@ describe("Authorize users",function(){
     })
   })
 
+  it("Should not authorize user",function(t){
+    c.authorize("staff", "user", "",
+      function(err, user_token){
+        should.not.exist(user_token)
+        should.exist(err)
+        t()
+    })
+  })
+
   it("Should authorize user",function(t){
     c.authorize("staff", "user", "1234",
       function(err, user_token){
