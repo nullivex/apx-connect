@@ -24,15 +24,19 @@
     "apex",
     "auth"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "request" : "~2.27.x"
+  },
   "devDependencies": {
+    "convict": "0.4.x",
     "async": "~0.2.0",
     "grunt": "~0.4.0",
     "grunt-mocha-test": "~0.7.0",
     "mocha": "~1.13.0",
     "should": "~2.0.0",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-project-update": "~0.1.0"
+    "grunt-project-update": "~0.1.0",
+    "nock" : "~0.23.0"
   },
   "scripts": {
     "test": "grunt test"
