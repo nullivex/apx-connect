@@ -71,7 +71,7 @@ is made at this time.
 #### Connect
 
 ```js
-Connect.connect(function(err,server_token){
+myapex.connect(function(err,server_token){
   if(err) console.log("Failed to connect to Apex: " + err)
   else console.log("Apex Server Token: " + server_token)
 })
@@ -85,7 +85,7 @@ Upon success the server will return a session token to be used by the server to 
 
 ```js
 var data = {collection: "staff", id: "email@email.org", password: "pass", role: "admin"}
-Connect.authorize(data,function(err,inst){
+myapex.authorize(data,function(err,inst){
   if(err) throw err
   inst.call("myfunction",{data:""},function(err,res){
     if(err) throw err
@@ -110,7 +110,7 @@ For more information on **roles** see the apex documentation. http://github.com/
 #### Request Role
 
 ```js
-Connect.requestRole("newrole",function(err,roles){
+myapex.requestRole("newrole",function(err,roles){
   if(err) throw err
   //show roles permitted by token
   console.log(roles)
@@ -125,7 +125,7 @@ Returns list of roles on success or an error explaining why the request failed.
 #### Call
 
 ```js
-apex.call("/my/uri",{blah: "mydata"},function(err,res){
+myapex.call("/my/uri",{blah: "mydata"},function(err,res){
   if(err) throw err
   console.log(res)
 })
