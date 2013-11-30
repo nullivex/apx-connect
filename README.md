@@ -59,9 +59,7 @@ app.listen()
 
 ### API Reference
 
-#### Authentication
-
-##### Constructor
+#### Constructor
 
 ```js
 var myapex = new Connect("http://server","mysecret")
@@ -70,7 +68,7 @@ var myapex = new Connect("http://server","mysecret")
 Constructs the initial instance and stores the secret and server hostname. No connection
 is made at this time.
 
-##### Connect
+#### Connect
 
 ```js
 Connect.connect(function(err,server_token){
@@ -83,7 +81,7 @@ Issues a connect authorization call the apex server using the secret.
 
 Upon success the server will return a session token to be used by the server to make requests.
 
-##### Authorize
+#### Authorize
 
 ```js
 var data = {collection: "staff", id: "email@email.org", password: "pass", role: "admin"}
@@ -109,7 +107,7 @@ use the session token for all further requests.
 
 For more information on **roles** see the apex documentation. http://github.com/snailjs/apex
 
-##### requestRole
+#### Request Role
 
 ```js
 Connect.requestRole("newrole",function(err,roles){
@@ -124,7 +122,7 @@ at authorize time or if that is omitted the server will assign defaul role(s).
 
 Returns list of roles on success or an error explaining why the request failed.
 
-##### call
+#### Call
 
 ```js
 apex.call("/my/uri",{blah: "mydata"},function(err,res){
