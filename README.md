@@ -6,27 +6,55 @@
 ### Simple Example Using Express.io
 
 ```js
-var apex = new require("apex-sdk")("admin")
+var ApexConnect = require("apex-connect")
   , email = "user1@domain.org"
   , password = "password"
   , express = require("express.io")
   , app = express().http().io()
 
-//setup apex as middleware
-app.use(function(req,res,next){
-  api.connect("mysecret",function(err,auth_token){
-    if(err) throw err
-    api.authorize(auth_token,"staff",email,password,function(err,msg,user_token){
-      if(err) throw err
-      if(msg) next(msg)
-      else {
-        req.locals.user_token = user_token
-        next()
-      }
-    })
+//do initial connect during startup
+app.apex = new ApexConnect("http://my-apex-server","mysecret")
+app.apex.connect(function(err,auth_token){
+  if(err) console.log("Failed to connect to Apex: " + err)
+  //do something with auth_token
+  //say the connection failure is critical then listen here
+  //app.listen()
+})
+
+//setup authorize as a route
+app.post("/login",function(req,res){
+  var data = {
+    collection: "staff",
+    id: req.body.email,
+    password: req.body.password
+  }
+  app.apex.authorize(data,function(err,inst){
+    if(err) res.send("Failed to login")
+    else {
+      //save user instance to session
+      req.session.apex = inst
+      //notify success
+      res.send("Successfully logged in here is your token: " + inst.token)
   })
 })
 
+//setup creation as a route
+app.post("/staff/create",function(req,res){
+  var data = {
+    email: req.body.email,
+    password: req.body.password,
+    name: {
+      first: req.body.name.first,
+      last: req.body.name.last
+    }
+  }
+  req.session.apex.call("/staff/create",data,function(err,res){
+    if(err) res.send("Failed to create staff member")
+    else res.send("Success! Staff member created")
+  })
+})
+
+//say getting started is more important than server now and simply log errors
 app.listen()
 ```
 
@@ -34,16 +62,41 @@ app.listen()
 
 #### Authentication
 
+##### Constructor
+
+```js
+var myapex = new Connect("http://server","mysecret")
+```
+
+Constructs the initial instance and stores the secret and server hostname. No connection
+is made at this time.
+
 ##### Connect
 
-`apex.connect(secret)`
+```js
+Connect.connect(secret)
+```
 
-This method should allow Mantle or Foot to supply a secret that will allow it to connect and obtain a special **Authorize Token**. The token is returned to minimize the number times the secret is submitted.
+Issues a connect authorization call the apex server using the secret.
 
-Once an **Authorize Token** is returned it will be required for all other authentication requests which includes user authentication. The **Authorize Token** will only be allowed to connect from the IP that originated the `apex.connect()` call. Only after a user is authorized will they receive a **User Token**
+Upon success the server will return a session token to be used by the server to make requests.
 
 ##### Authorize
 
-`apex.authorize(auth_token,collection,id,secret)`
+```js
+var data = {collection: "staff", id: "email@email.org", password: "pass"}
+Connect.authorize(data,function(err,inst){})
+```
 
-The `authorize` method allows mantle or foot to use an **Authorize Token** to obtain a **User Token** by submitting an id and secret against a named collection.
+Issues an authorization request. Upon success of login success it returns an instance that will
+use the session token for all further requests.
+
+**Note** the session token should be used on all subsequent requests.
+
+##### Call
+
+```js
+apex.call("/my/uri",{blah: "mydata"},function(err,res){})
+```
+
+Issues an arbitrary call the Apex server. This is the main method for making data requests.

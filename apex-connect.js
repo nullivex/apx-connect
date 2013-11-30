@@ -21,28 +21,37 @@ var Connect = function Connect(server,secret){
   self.secret = secret
 
   /**
-  * Auth token received from Apex
+  * Server session token received from Apex
   * @type {null}
   */
-  self.auth_token = null
+  self.token = null
+}
 
-  /**
-   * User token received
-   * @type {null}
-   */
-  self.user_token = null
-
-  self.call = function(call,data,fn){
+/**
+ * Main API call function
+ *
+ * @param call  The URI to call
+ * @param data  Data to pass to the call
+ * @param fn  Callback function fn(err,res)
+ */
+Connect.prototype.call = function(call,data,fn){
+  var self = this
+  if("/auth/connect" !== call && !self.token)
+    fn("Not connected to the server")
+  else {
+    //finalize data
+    if(self.token) data.token = self.token
+    //make request
     request.post(
-      self.server + call,
-      data,
+      self.server + (call.match(/^\/.*/) ? call : "/" + call),
+      {form: data},
       function(err,res,body){
-        if(201 !== res.statusCode ){
-          self.auth_token = null
-          fn("Could not contact server: " + res.statusCode,null)
+        if(200 !== res.statusCode ){
+          fn("Server call failed with response: " + res.statusCode)
         } else {
           body = JSON.parse(body)
-          fn(null,body)
+          if(body.error) fn("Server returned an error: " + body.error)
+          else fn(null,body)
         }
       }
     )
@@ -59,14 +68,14 @@ var Connect = function Connect(server,secret){
  */
 Connect.prototype.connect = function(fn){
   var self = this
-    , data = {form:{ secret:this.secret }}
+    , data = {secret: self.secret}
   self.call("/auth/connect",data,function(err,res){
     if(err) fn(err)
-    else if(res.auth && res.auth == "ok" && res.token){
-      self.auth_token = res.token
+    else if(res.token){
+      self.token = res.token
       fn(null,res.token)
     } else {
-      self.auth_token = null
+      self.token = null
       fn("Could not connect",null)
     }
   })
@@ -75,32 +84,34 @@ Connect.prototype.connect = function(fn){
 /**
  * Authorization function to receive a user_token
  *
+ * Req Object {
+ *  collection: "staff",
+ *  id: "email@email.org",
+ *  password: "pass1234"
+ * }
+ *
  * Fires fn on completion with fn(err,user_token)
  *
- * @param collection
- * @param id
- * @param secret
+ * @param req  Request object eg above
  * @param fn
  */
-Connect.prototype.authorize = function(collection,id,secret,fn){
+Connect.prototype.authorize = function(req,fn){
   var self = this
     , data = {
-      form:{
-        token : self.auth_token,
-        collection : collection,
-        id: id,
-        secret : secret
-      }
+      token : self.token,
+      collection : req.collection,
+      id: req.id,
+      password : req.password
     }
-  if(!self.auth_token){
-    fn("Not connected to the server",null)
-    return
-  }
   self.call("/auth/authorize",data,function(err,res){
     if(err) fn(err)
-    else if(res.auth && res.auth == "ok" && res.token){
-      self.auth_token = res.token
-      fn(null,res.token)
+    else if(res.token){
+      //setup user instance of connect
+      var inst = new Connect(self.server,self.secret)
+      inst.connect = undefined
+      inst.authorize = undefined
+      inst.token = res.token
+      fn(null,inst)
     } else {
       fn("Could not authorize",null)
     }
