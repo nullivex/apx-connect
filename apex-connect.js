@@ -4,34 +4,50 @@ var request = require("request")
  * Connect object constructor
  * @constructor
  */
-var Connect = function Connect(server, secret){
+var Connect = function Connect(server,secret){
   //constructor
+  var self = this
 
   /**
    * Apex server hostname
    * @type {null}
    */
-  this.server = server
+  self.server = server
 
   /**
    * Secret used to connect to the Apex server
    * @type {null}
    */
-  this.secret = secret
+  self.secret = secret
 
   /**
   * Auth token received from Apex
   * @type {null}
   */
-  this.auth_token = null
+  self.auth_token = null
 
   /**
    * User token received
    * @type {null}
    */
-  this.user_token = null
-}
+  self.user_token = null
 
+  self.call = function(call,data,fn){
+    request.post(
+      self.server + call,
+      data,
+      function(err,res,body){
+        if(201 !== res.statusCode ){
+          self.auth_token = null
+          fn("Could not contact server: " + res.statusCode,null)
+        } else {
+          body = JSON.parse(body)
+          fn(null,body)
+        }
+      }
+    )
+  }
+}
 
 /**
  * Initial connect call that establishes the auth
@@ -42,28 +58,18 @@ var Connect = function Connect(server, secret){
  * @param fn
  */
 Connect.prototype.connect = function(fn){
-
   var self = this
-  request.post( this.server + "/auth/connect",
-    {form:{ secret:this.secret }},
-    function(error, response, body){
-      if (response.statusCode == 201) {
-        auth_response = JSON.parse(body)
-        if (auth_response.auth && auth_response.auth == "ok") {
-          self.auth_token = auth_response.token
-          fn(null, auth_response.token)
-        }else{
-          self.auth_token = null
-          fn("Could not authenticate", null)
-        }
-      }else{
-        self.auth_token = null
-        fn("Could not contact server : " + response.statusCode , null)
-      }
+    , data = {form:{ secret:this.secret }}
+  self.call("/auth/connect",data,function(err,res){
+    if(err) fn(err)
+    else if(res.auth && res.auth == "ok" && res.token){
+      self.auth_token = res.token
+      fn(null,res.token)
+    } else {
+      self.auth_token = null
+      fn("Could not connect",null)
     }
-  )
-
-  //fn(null, this.auth_token)
+  })
 }
 
 /**
@@ -76,37 +82,29 @@ Connect.prototype.connect = function(fn){
  * @param secret
  * @param fn
  */
-Connect.prototype.authorize = function(collection, id, secret, fn){
+Connect.prototype.authorize = function(collection,id,secret,fn){
   var self = this
-
-  if (!self.auth_token) {
-    fn("Not connected to the server", null)
-    return
-  }
-
-  request.post( this.server + "/auth/authorize",
-    {
+    , data = {
       form:{
         token : self.auth_token,
         collection : collection,
         id: id,
         secret : secret
       }
-    },
-    function(error, response, body){
-      if (response.statusCode == 201) {
-        auth_response = JSON.parse(body)
-        if (auth_response.auth && auth_response.auth == "ok") {
-          fn(null, auth_response.user_token)
-        }else{
-          fn("Could not authenticate", null)
-        }
-      }else{
-        self.auth_token = null
-        fn("Could not contact server : " + response.statusCode , null)
-      }
     }
-  )
+  if(!self.auth_token){
+    fn("Not connected to the server",null)
+    return
+  }
+  self.call("/auth/authorize",data,function(err,res){
+    if(err) fn(err)
+    else if(res.auth && res.auth == "ok" && res.token){
+      self.auth_token = res.token
+      fn(null,res.token)
+    } else {
+      fn("Could not authorize",null)
+    }
+  })
 }
 
 //export module
