@@ -3,6 +3,9 @@ module.exports = function(grunt) {
   grunt.initConfig({
     mochaTest: {
       admin: {
+        options: {
+          reporter: "list"
+        },
         src: ["*.test.js"]
       }
     },
