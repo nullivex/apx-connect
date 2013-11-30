@@ -87,7 +87,8 @@ Connect.prototype.connect = function(fn){
  * Req Object {
  *  collection: "staff",
  *  id: "email@email.org",
- *  password: "pass1234"
+ *  password: "pass1234",
+ *  role: "admin"
  * }
  *
  * Fires fn on completion with fn(err,user_token)
@@ -103,6 +104,7 @@ Connect.prototype.authorize = function(req,fn){
       id: req.id,
       password : req.password
     }
+  if(req.role) data.role = req.role
   self.call("/auth/authorize",data,function(err,res){
     if(err) fn(err)
     else if(res.token){
@@ -115,6 +117,14 @@ Connect.prototype.authorize = function(req,fn){
     } else {
       fn("Could not authorize",null)
     }
+  })
+}
+
+Connect.prototype.requestRole = function(role,fn){
+  var self = this
+  self.call("/auth/requestRole",{role: role},function(err,res){
+    if(err) fn(err)
+    else fn(null,res.roles)
   })
 }
 
