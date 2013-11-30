@@ -73,7 +73,10 @@ is made at this time.
 ##### Connect
 
 ```js
-Connect.connect(secret)
+Connect.connect(function(err,server_token){
+  if(err) console.log("Failed to connect to Apex: " + err)
+  else console.log("Apex Server Token: " + server_token)
+})
 ```
 
 Issues a connect authorization call the apex server using the secret.
@@ -84,7 +87,13 @@ Upon success the server will return a session token to be used by the server to 
 
 ```js
 var data = {collection: "staff", id: "email@email.org", password: "pass", role: "admin"}
-Connect.authorize(data,function(err,inst){})
+Connect.authorize(data,function(err,inst){
+  if(err) throw err
+  inst.call("myfunction",{data:""},function(err,res){
+    if(err) throw err
+    console.log(res)
+  })
+})
 ```
 
 Issues an authorization request. Upon success of login success it returns an instance that will
@@ -108,6 +117,7 @@ Connect.requestRole("newrole",function(err,roles){
   //show roles permitted by token
   console.log(roles)
 })
+```
 
 Requests an additional permission role to be added to the token. Tokens will only receive the role(s) requested
 at authorize time or if that is omitted the server will assign defaul role(s).
