@@ -1,4 +1,4 @@
-# [SnailJS](//github.com/snailjs/).[Apex-Connect](//github.com/snailjs/apex-connect/)
+# [SnailJS](//github.com/snailjs/).[Apex-Connect](//github.com/snailjs/apex-connect/) [![Build Status](https://travis-ci.org/snailjs/apex-connect.png?branch=master)](https://travis-ci.org/snailjs/apex-connect)
 ![Logo](snail-apex.png)
 
 ##SnailJS Apex Authentication Library
